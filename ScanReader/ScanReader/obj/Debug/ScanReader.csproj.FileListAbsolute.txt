@@ -1,0 +1,9 @@
+c:\users\nimat\documents\visual studio 2017\Projects\ScanReader\ScanReader\bin\Debug\ScanReader.exe.config
+c:\users\nimat\documents\visual studio 2017\Projects\ScanReader\ScanReader\bin\Debug\ScanReader.exe
+c:\users\nimat\documents\visual studio 2017\Projects\ScanReader\ScanReader\bin\Debug\ScanReader.pdb
+c:\users\nimat\documents\visual studio 2017\Projects\ScanReader\ScanReader\obj\Debug\ScanReader.csprojResolveAssemblyReference.cache
+c:\users\nimat\documents\visual studio 2017\Projects\ScanReader\ScanReader\obj\Debug\ScanReader.Properties.Resources.resources
+c:\users\nimat\documents\visual studio 2017\Projects\ScanReader\ScanReader\obj\Debug\ScanReader.csproj.GenerateResource.Cache
+c:\users\nimat\documents\visual studio 2017\Projects\ScanReader\ScanReader\obj\Debug\ScanReader.exe
+c:\users\nimat\documents\visual studio 2017\Projects\ScanReader\ScanReader\obj\Debug\ScanReader.pdb
+c:\users\nimat\documents\visual studio 2017\Projects\ScanReader\ScanReader\obj\Debug\ScanReader.Form1.resources
