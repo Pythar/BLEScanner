@@ -28,7 +28,7 @@ namespace ScanReader
         //Timer timer = new Timer();
         // int nonZeroMacAddresses = 100;
         List<TextBox> macAddressTextBoxes = new List<TextBox>();
-        int signalFilterNumber = 100;
+        string signalFilterNumber = "0";
 
         public Form1()
         {  
@@ -115,11 +115,11 @@ namespace ScanReader
                 ComPort.Handshake = (Handshake)Enum.Parse(typeof(Handshake), "None");
                 ComPort.Parity = (Parity)Enum.Parse(typeof(Parity), "None");
                 ComPort.DtrEnable = true;
+                dataTextBox.Clear();
                 ComPort.Open();      
                 openComButton.Enabled = false;
                 closeComButton.Enabled = true;
                 ComPort.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived_1);
-                SetText(signalFilterNumber.ToString());
             //}
             /*else if (openComButton.Text == "Open")
             {
@@ -137,6 +137,8 @@ namespace ScanReader
         private void closeComButton_Click(object sender, EventArgs e)
         {
             ThreadPool.QueueUserWorkItem(new WaitCallback(ThreadProc));
+            openComButton.Enabled = true;
+            closeComButton.Enabled = false;
         }
 
         private void ThreadProc(Object stateInfo)
@@ -144,9 +146,7 @@ namespace ScanReader
             // Attempt to close serial port
             if (this.ComPort.IsOpen == true)
             {
-                this.ComPort.Close();
-                openComButton.Enabled = true;
-                closeComButton.Enabled = false;
+                this.ComPort.Close();            
             }
         }
 
@@ -166,12 +166,11 @@ namespace ScanReader
             //StringBuilder sb = new StringBuilder();
 
             if (this.Controls.OfType<TextBox>().All(t => string.IsNullOrEmpty(t.Text)))
-            {
-                int bla = GetHexFromStringAndConvertToInt(readLineBuffer);
-                if (GetHexFromStringAndConvertToInt(readLineBuffer) > signalFilterNumber) {
-                    data = signalFilterNumber.ToString() + "<= " + timeStamp + ": " + readLineBuffer;
+            {       
+                if (isSignalHigherThanFilter(this.GetHexFromString(readLineBuffer))) 
+                {
+                    data = timeStamp + ": " + readLineBuffer;
                     SetText(data);
-                    //dataTextBox.Text += data;
                 }
             }
             else if (!this.Controls.OfType<TextBox>().All(t => string.IsNullOrEmpty(t.Text))) {
@@ -179,10 +178,10 @@ namespace ScanReader
                 {
                     if (readLineBuffer.Contains(macAddressTextBox.Text)
                         && !string.IsNullOrEmpty(macAddressTextBox.Text)
-                        && this.GetHexFromStringAndConvertToInt(readLineBuffer) > signalFilterNumber)
+                        && isSignalHigherThanFilter(this.GetHexFromString(readLineBuffer)))
                     {
                         data = timeStamp + ": " + readLineBuffer;
-                        dataTextBox.Text += data;
+                        SetText(data);
                     }
                 }
             }
@@ -265,13 +264,17 @@ namespace ScanReader
 
         private void signalStrengthFilterButton_Click(object sender, EventArgs e)
         {
-            signalFilterNumber = int.Parse(signalStrengthTextBox.Text);
-            dataTextBox.Text = signalFilterNumber.ToString();
+            signalFilterNumber = signalStrengthTextBox.Text;
+            dataTextBox.Text = "Filter set to: " + signalFilterNumber.ToString();
+            setSignalStrengthLabel.Text = "Filter is currently set to " +
+                signalStrengthTextBox.Text;
+            signalStrengthTextBox.Clear();
+
             /* question = getHexFromStringAndConvertToInt("80EACA406979,0,-27,Brcst:0201061B00411100850104FEC304FEC305FFC304FFC203FFC204FEC304FFC3").ToString();
             dataTextBox.Text = question;*/
         }
 
-        private int GetHexFromStringAndConvertToInt(String str)
+        private string GetHexFromString(String str)
         {
             int count = Regex.Matches(Regex.Escape(str), ",0,-").Count;
             int count2 = Regex.Matches(Regex.Escape(str), ",Brcst").Count;
@@ -280,13 +283,32 @@ namespace ScanReader
             {
                 int pFrom = str.IndexOf(",0,-") + ",0,-".Length;
                 int pTo = str.LastIndexOf(",Brcst");
-                String result = str.Substring(pFrom, pTo - pFrom);
-                return Int32.Parse(result, NumberStyles.HexNumber);
+                string result = str.Substring(pFrom, pTo - pFrom);
+                return result;
             }
             else
             {
-                return 100000;
+                return "F4240";
             }         
+        }
+
+        private Boolean isSignalHigherThanFilter(string signalString)
+        {
+            int a = int.Parse(signalString, System.Globalization.NumberStyles.HexNumber);
+            int b = int.Parse(signalFilterNumber, System.Globalization.NumberStyles.HexNumber);
+
+            if (a > b)
+            {
+                return true;
+            }
+            else if ( a == b)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void saveDataButton_Click(object sender, EventArgs e)
