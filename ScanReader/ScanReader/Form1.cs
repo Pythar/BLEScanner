@@ -23,12 +23,8 @@ namespace ScanReader
         internal delegate void SerialPinChangedEventHandlerDelegate(
                  object sender, SerialPinChangedEventArgs e);
         delegate void SetTextCallback(string text);
-        // string InputData = String.Empty;
-        //string[] macAddressesAsStrings;
-        //Timer timer = new Timer();
-        // int nonZeroMacAddresses = 100;
         List<TextBox> macAddressTextBoxes = new List<TextBox>();
-        string signalFilterNumber = "0";
+        string signalFilterNumber = "F4240";
 
         public Form1()
         {  
@@ -36,7 +32,7 @@ namespace ScanReader
             closeComButton.Enabled = false;
         }
 
-        private void portsButton_Click(object sender, EventArgs e)
+        private void PortsButton_Click(object sender, EventArgs e)
         {
             string[] ArrayComPortsNames = null;
             int index = -1;
@@ -75,22 +71,24 @@ namespace ScanReader
             baudRateCombo.Text = baudRateCombo.Items[0].ToString();
 
             dataBitCombo.Items.Add(8);
-            dataBitCombo.Items.Add(7);
+            //dataBitCombo.Items.Add(7);
             dataBitCombo.Text = dataBitCombo.Items[0].ToString();
 
             stopBitCombo.Items.Add("1");
+            /*
             stopBitCombo.Items.Add("1.5");
-            stopBitCombo.Items.Add("2");
+            stopBitCombo.Items.Add("2");*/
             //get the first item print in the text
             stopBitCombo.Text = stopBitCombo.Items[0].ToString();
 
+            // We use a preset handshaking in the current version
             /*handShakingCombo.Items.Add("None");
             handShakingCombo.Items.Add("XOnXOff");
             handShakingCombo.Items.Add("RequestToSend");
             handShakingCombo.Items.Add("RequestToSendXOnXOff");
 
 
-
+            //We use a preset parity in the current version
             parityCombo.Items.Add("None");
             parityCombo.Items.Add("Even");
             parityCombo.Items.Add("Mark");
@@ -103,38 +101,26 @@ namespace ScanReader
             ComPort.ReadTimeout = 5000;
         }
 
-        private void openComButton_Click(object sender, EventArgs e)
-        {
-            /*if (openComButton.Text == "Closed")
-            {*/
-                openComButton.Text = "Open";
-                ComPort.PortName = Convert.ToString(portSelectionBox.Text);
-                ComPort.BaudRate = Convert.ToInt32(baudRateCombo.Text);
-                ComPort.DataBits = Convert.ToInt16("8");
-                ComPort.StopBits = (StopBits)Enum.Parse(typeof(StopBits), "1");
-                ComPort.Handshake = (Handshake)Enum.Parse(typeof(Handshake), "None");
-                ComPort.Parity = (Parity)Enum.Parse(typeof(Parity), "None");
-                ComPort.DtrEnable = true;
-                dataTextBox.Clear();
-                ComPort.Open();      
-                openComButton.Enabled = false;
-                closeComButton.Enabled = true;
-                ComPort.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived_1);
-            //}
-            /*else if (openComButton.Text == "Open")
-            {
-                openComButton.Text = "Closed";
-
-                Thread thread = new Thread(ComPort.Close());
-                ComPort.Close();
-                timer.Interval = 5000; // here time in milliseconds
-                timer.Tick += timer_Tick;
-                timer.Start();
-                openComButton.Enabled = false;            
-            } */
+        // Open communication
+        private void OpenComButton_Click(object sender, EventArgs e)
+        {         
+            openComButton.Text = "Open";
+            ComPort.PortName = Convert.ToString(portSelectionBox.Text);
+            ComPort.BaudRate = Convert.ToInt32(baudRateCombo.Text);
+            ComPort.DataBits = Convert.ToInt16(dataBitCombo.Text);
+            ComPort.StopBits = (StopBits)Enum.Parse(typeof(StopBits), stopBitCombo.Text);
+            ComPort.Handshake = (Handshake)Enum.Parse(typeof(Handshake), "None");
+            ComPort.Parity = (Parity)Enum.Parse(typeof(Parity), "None");
+            ComPort.DtrEnable = true;
+            dataTextBox.Clear();
+            ComPort.Open();      
+            openComButton.Enabled = false;
+            closeComButton.Enabled = true;
+            ComPort.DataReceived += new SerialDataReceivedEventHandler(Port_DataReceived_1);
         }
 
-        private void closeComButton_Click(object sender, EventArgs e)
+        // Close communication
+        private void CloseComButton_Click(object sender, EventArgs e)
         {
             ThreadPool.QueueUserWorkItem(new WaitCallback(ThreadProc));
             openComButton.Enabled = true;
@@ -150,35 +136,31 @@ namespace ScanReader
             }
         }
 
-        void timer_Tick(object sender, System.EventArgs e)
+        // Looks if there is any data received via the serial communication.
+        private void Port_DataReceived_1(object sender, SerialDataReceivedEventArgs e)
         {
-            openComButton.Enabled = true;
-            //timer.Stop();
-        }
-
-
-        private void port_DataReceived_1(object sender, SerialDataReceivedEventArgs e)
-       {
             SerialPort sp = (SerialPort)sender;
             string timeStamp = GetTimeStamp(DateTime.Now);
             string readLineBuffer = sp.ReadLine();
             string data = string.Empty;
-            //StringBuilder sb = new StringBuilder();
 
+            // Enter if all text fields are empty - No MAC-address filter given
             if (this.Controls.OfType<TextBox>().All(t => string.IsNullOrEmpty(t.Text)))
             {       
-                if (isSignalHigherThanFilter(this.GetHexFromString(readLineBuffer))) 
+                if (IsSignalLowerThanFilter(this.GetHexFromString(readLineBuffer))) 
                 {
                     data = timeStamp + ": " + readLineBuffer;
                     SetText(data);
                 }
             }
+
             else if (!this.Controls.OfType<TextBox>().All(t => string.IsNullOrEmpty(t.Text))) {
                 foreach (TextBox macAddressTextBox in macAddressTextBoxes)
                 {
+                    // Enter if the data string contains a MAC-address given as a filter
                     if (readLineBuffer.Contains(macAddressTextBox.Text)
                         && !string.IsNullOrEmpty(macAddressTextBox.Text)
-                        && isSignalHigherThanFilter(this.GetHexFromString(readLineBuffer)))
+                        && IsSignalLowerThanFilter(this.GetHexFromString(readLineBuffer)))
                     {
                         data = timeStamp + ": " + readLineBuffer;
                         SetText(data);
@@ -187,8 +169,7 @@ namespace ScanReader
             }
         }
 
-        //delegate void SetTextCallback(string text);
-
+        // Set the data to the richtextbox field.
         private void SetText(string text)
         {
             // InvokeRequired required compares the thread ID of the
@@ -205,30 +186,21 @@ namespace ScanReader
             }
         }
 
+        // Get time computers time.
         public static String GetTimeStamp(DateTime value)
         {
             return value.ToString("HH:mm:ss.ffff");
         }
 
-        private void helloButton_Click(object sender, EventArgs e)
-        {
-            ComPort.Write("Hello World!");
-        }
-
-        private void port_DataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            ComPort.ReadLine();
-        }
-
-        private void cleanTextBox_Click(object sender, EventArgs e)
+        //Clear the data textbox
+        private void ClearTextBox_Click(object sender, EventArgs e)
         {
             dataTextBox.Clear();
         }
 
-        private void macAddressFilterButton_Click(object sender, EventArgs e)
+        // Fetch the MAC-address to show and print them out in the data textbox.
+        private void MacAddressFilterButton_Click(object sender, EventArgs e)
         {
-            //nonZeroMacAddresses = 0;
-
             macAddressTextBoxes.Clear();
             StringBuilder sb = new StringBuilder();
 
@@ -243,6 +215,7 @@ namespace ScanReader
             macAddressTextBoxes.Add(macAddressTextBox9);
             macAddressTextBoxes.Add(macAddressTextBox10);
 
+            // If ALL textboxes are empty, enter below.
             if (this.Controls.OfType<TextBox>().All(t => string.IsNullOrEmpty(t.Text)))
             {
                 sb.AppendLine("No filter was added.");
@@ -262,18 +235,16 @@ namespace ScanReader
             dataTextBox.Text = sb.ToString();
         }
 
-        private void signalStrengthFilterButton_Click(object sender, EventArgs e)
+        // Fetches the filter limit for the signal strength, prints it in the text box and changes the labels text.
+        private void SignalStrengthFilterButton_Click(object sender, EventArgs e)
         {
             signalFilterNumber = signalStrengthTextBox.Text;
             dataTextBox.Text = "Filter set to: " + signalFilterNumber.ToString();
-            setSignalStrengthLabel.Text = "Filter is currently set to " +
-                signalStrengthTextBox.Text;
+            setSignalStrengthLabel.Text = "Filter is currently set to " + signalStrengthTextBox.Text;
             signalStrengthTextBox.Clear();
-
-            /* question = getHexFromStringAndConvertToInt("80EACA406979,0,-27,Brcst:0201061B00411100850104FEC304FEC305FFC304FFC203FFC204FEC304FFC3").ToString();
-            dataTextBox.Text = question;*/
         }
 
+        // Extracts the hexadecimal number that represents the signal strength from the data string.
         private string GetHexFromString(String str)
         {
             int count = Regex.Matches(Regex.Escape(str), ",0,-").Count;
@@ -292,12 +263,13 @@ namespace ScanReader
             }         
         }
 
-        private Boolean isSignalHigherThanFilter(string signalString)
+        // Compares the signal strength with the set filter. If lower, return true since lower number means closer device.
+        private Boolean IsSignalLowerThanFilter(string signalString)
         {
             int a = int.Parse(signalString, System.Globalization.NumberStyles.HexNumber);
             int b = int.Parse(signalFilterNumber, System.Globalization.NumberStyles.HexNumber);
 
-            if (a > b)
+            if (a < b)
             {
                 return true;
             }
@@ -311,7 +283,8 @@ namespace ScanReader
             }
         }
 
-        private void saveDataButton_Click(object sender, EventArgs e)
+        // Save current data to a file.
+        private void SaveDataButton_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFile1 = new SaveFileDialog();
 

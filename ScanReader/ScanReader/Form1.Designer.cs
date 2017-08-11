@@ -63,7 +63,7 @@
             this.portsButton.TabIndex = 2;
             this.portsButton.Text = "Get Port Info";
             this.portsButton.UseVisualStyleBackColor = true;
-            this.portsButton.Click += new System.EventHandler(this.portsButton_Click);
+            this.portsButton.Click += new System.EventHandler(this.PortsButton_Click);
             // 
             // portSelectionBox
             // 
@@ -92,7 +92,7 @@
             this.openComButton.TabIndex = 10;
             this.openComButton.Text = "Open";
             this.openComButton.UseVisualStyleBackColor = true;
-            this.openComButton.Click += new System.EventHandler(this.openComButton_Click);
+            this.openComButton.Click += new System.EventHandler(this.OpenComButton_Click);
             // 
             // dataTextBox
             // 
@@ -112,7 +112,7 @@
             this.cleanTextBox.TabIndex = 13;
             this.cleanTextBox.Text = "Clear Textbox";
             this.cleanTextBox.UseVisualStyleBackColor = true;
-            this.cleanTextBox.Click += new System.EventHandler(this.cleanTextBox_Click);
+            this.cleanTextBox.Click += new System.EventHandler(this.ClearTextBox_Click);
             // 
             // macAddressFilterButton
             // 
@@ -123,7 +123,7 @@
             this.macAddressFilterButton.TabIndex = 15;
             this.macAddressFilterButton.Text = "Filter MAC-Address\r\n";
             this.macAddressFilterButton.UseVisualStyleBackColor = true;
-            this.macAddressFilterButton.Click += new System.EventHandler(this.macAddressFilterButton_Click);
+            this.macAddressFilterButton.Click += new System.EventHandler(this.MacAddressFilterButton_Click);
             // 
             // macAddressTextBox1
             // 
@@ -142,7 +142,7 @@
             this.saveDataButton.TabIndex = 17;
             this.saveDataButton.Text = "Savet to file";
             this.saveDataButton.UseVisualStyleBackColor = true;
-            this.saveDataButton.Click += new System.EventHandler(this.saveDataButton_Click);
+            this.saveDataButton.Click += new System.EventHandler(this.SaveDataButton_Click);
             // 
             // macAddressTextBox2
             // 
@@ -225,7 +225,7 @@
             this.closeComButton.TabIndex = 30;
             this.closeComButton.Text = "Close";
             this.closeComButton.UseVisualStyleBackColor = true;
-            this.closeComButton.Click += new System.EventHandler(this.closeComButton_Click);
+            this.closeComButton.Click += new System.EventHandler(this.CloseComButton_Click);
             // 
             // dataBitCombo
             // 
@@ -254,7 +254,7 @@
             this.signalStrengthFilterButton.TabIndex = 31;
             this.signalStrengthFilterButton.Text = "Filter Signal Strength";
             this.signalStrengthFilterButton.UseVisualStyleBackColor = true;
-            this.signalStrengthFilterButton.Click += new System.EventHandler(this.signalStrengthFilterButton_Click);
+            this.signalStrengthFilterButton.Click += new System.EventHandler(this.SignalStrengthFilterButton_Click);
             // 
             // signalStrengthTextBox
             // 
