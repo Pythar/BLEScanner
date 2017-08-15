@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Microsoft.Office.Interop;
 
 namespace ScanReader
 {
@@ -150,10 +151,11 @@ namespace ScanReader
             {       
                 if (IsSignalLowerThanFilter(this.GetHexSignalFromString(readLineBuffer)))
                 {
-                    data = timeStamp + ": " + readLineBuffer;
                     GetMacAddressFromString(readLineBuffer);
-                    SetText(data);
-                    
+
+                    // Adds the current time to the data line.
+                    data = timeStamp + ": " + readLineBuffer;               
+                    SetText(data);             
                 }
             }
 
@@ -164,8 +166,11 @@ namespace ScanReader
                     if (readLineBuffer.Contains(macAddressTextBox.Text)
                         && !string.IsNullOrEmpty(macAddressTextBox.Text)
                         && IsSignalLowerThanFilter(this.GetHexSignalFromString(readLineBuffer)))
-                    {
-                        data = timeStamp + ": " + readLineBuffer;
+                    {                      
+                        GetMacAddressFromString(readLineBuffer);
+
+                        // Adds the current time to the data line.
+                        data = timeStamp + ": " + readLineBuffer;                     
                         SetText(data);
                     }
                 }
@@ -290,14 +295,46 @@ namespace ScanReader
         private void PrintMacAddresses_Click(object sender, EventArgs e)
         {
             StringBuilder macAddresses = new StringBuilder();
-            dataTextBox.Clear();
+            dataTextBox.Clear();         
+
+            // Start Excel
+            Microsoft.Office.Interop.Excel.Application oXL = new Microsoft.Office.Interop.Excel.Application();
+            oXL.Visible = true;
+
+            // Get path to excecutable (Same place as where the Excel Sheet is)
+            string exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+            // Open workbook
+            Microsoft.Office.Interop.Excel._Workbook oWB = oXL.Workbooks.Open(System.IO.Path.Combine(exeDir, "MAC adress list example.xlsx"));
+            Microsoft.Office.Interop.Excel._Worksheet oSheet = (Microsoft.Office.Interop.Excel._Worksheet)oWB.ActiveSheet;
+
+            int rowIdx;
+            int notEmpty;
 
             foreach (string macAddress in uniqueMacAddresses)
             {
-                macAddresses.Append(macAddress + "\n");
-            }
+                rowIdx = 1;
+                notEmpty = 1;
 
+                macAddresses.Append(macAddress + "\n");
+
+                // Loops through the rows in the Excel-document until you find 
+                // a row that is completely empty. 
+                while (notEmpty > 0)
+                {
+                    string aCellAddress = "B" + rowIdx.ToString();
+                    Microsoft.Office.Interop.Excel.Range row = oXL.get_Range(aCellAddress, aCellAddress).EntireRow;
+                    notEmpty = (int)oXL.WorksheetFunction.CountA(row);
+                    rowIdx++;
+                }
+
+                // Set the first found completely empty row to a MAC-address value
+                oSheet.Cells[rowIdx - 1, 2] = macAddress;
+            }
             dataTextBox.Text = macAddresses.ToString();
+
+            // Clears all the addresses so that they are removed when we are printing the next time.
+            uniqueMacAddresses.Clear();
         }
 
         // Compares the signal strength with the set filter. If lower, return true since lower number means closer device.

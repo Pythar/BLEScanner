@@ -25,3 +25,4 @@ C:\Users\nimat\Documents\Visual Studio 2017\Projects\ScanReaderDevelopmentVersio
 C:\Users\nimat\Documents\Visual Studio 2017\Projects\ScanReaderDevelopmentVersion\ScanReader\obj\Debug\ScanReader.csproj.GenerateResource.Cache
 C:\Users\nimat\Documents\Visual Studio 2017\Projects\ScanReaderDevelopmentVersion\ScanReader\obj\Debug\ScanReader.exe
 C:\Users\nimat\Documents\Visual Studio 2017\Projects\ScanReaderDevelopmentVersion\ScanReader\obj\Debug\ScanReader.pdb
+C:\Users\nimat\Documents\Visual Studio 2017\Projects\ScanReaderDevelopmentVersion\ScanReader\obj\Debug\ScanReader.csproj.ResolveComReference.cache
