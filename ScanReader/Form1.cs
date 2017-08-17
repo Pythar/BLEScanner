@@ -26,7 +26,7 @@ namespace ScanReader
         delegate void SetTextCallback(string text);
         List<TextBox> macAddressTextBoxes = new List<TextBox>();
         List<string> uniqueMacAddresses = new List<string>();
-        string signalFilterNumber = "F4240";
+        string signalFilterNumber = "F4241";
 
         public Form1()
         {  
