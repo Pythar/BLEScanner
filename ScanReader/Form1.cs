@@ -6,11 +6,11 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using System.IO.Ports;
 using System.Windows.Forms;
 using System.Threading;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using Microsoft.Office.Interop;
 
 namespace ScanReader
